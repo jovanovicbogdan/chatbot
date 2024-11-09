@@ -1,4 +1,3 @@
-# ARG BASE=474230206603.dkr.ecr.us-west-2.amazonaws.com/upwork/operations-engineering/upwork-base-ubuntu-minimal
 FROM ubuntu:22.04
 
 RUN apt-get update && \
