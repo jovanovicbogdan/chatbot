@@ -1,0 +1,62 @@
+services:
+  qa-qabot-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile-frontend
+      args:
+        BASE: ubuntu
+    ports:
+      - 8888:8888
+
+  qa-qabot-adminer:
+    build:
+      context: .
+      dockerfile: Dockerfile-adminer
+      args:
+        BASE: ubuntu
+    ports:
+      - 8000:8000
+
+  qa-qabot-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile-backend
+      args:
+        BASE: ubuntu
+    environment:
+      DB_HOST: qa-qabot-database
+      DB_USER: postgres
+      DB_PORT: 5432
+      DATABASE_URL: postgresql://postgres:rootpassword@qa-qabot-database:5432/qabot
+      OPENAI_API_KEY: sk-...
+      # DOCS_DIR: data
+
+    ports:
+      - 8080:8080
+    volumes:
+      - ~/.ssh/id_rsa:/home/qabot/.ssh/id_rsa
+      - qa-qabot-doc:/data
+
+  qa-qabot-database:
+    build:
+      context: .
+      dockerfile: Dockerfile-database
+      args:
+        BASE: ubuntu
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: rootpassword
+      POSTGRES_DB: qabot
+      PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_INITDB_ARGS: '--encoding=UTF-8 --lc-collate=C --lc-ctype=C'
+      #POSTGRES_HOST_AUTH_METHOD: trust
+    volumes:
+      - db:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  db:
+    external: false
+  qa-qabot-doc:
+    external: false

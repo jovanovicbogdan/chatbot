@@ -1,0 +1,33 @@
+services:
+  db:
+    container_name: pg
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: rootpassword
+      POSTGRES_DB: qabot
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - db:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - botnetwork
+    restart: unless-stopped
+
+  adminer:
+    container_name: adminer
+    image: adminer
+    restart: unless-stopped
+    ports:
+      - "8000:8080"
+    networks:
+      - botnetwork
+
+networks:
+  botnetwork:
+    name: langchainnetwork
+    driver: bridge
+volumes:
+ db:
+

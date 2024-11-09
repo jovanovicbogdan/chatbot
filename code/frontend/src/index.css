@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  h1 {
+    @apply text-5xl font-bold;
+  }
+
+  h2 {
+    @apply text-4xl font-bold;
+  }
+
+  h3 {
+    @apply text-3xl font-bold;
+  }
+
+  h4 {
+    @apply text-2xl font-bold;
+  }
+
+  h5 {
+    @apply text-xl font-bold;
+  }
+
+  ol {
+    list-style-type: decimal;
+  }
+
+  ul {
+    list-style-type: disc;
+  }
+
+  ol,
+  ul {
+    padding-left: 1.5rem;
+  }
+}
+
+body {
+  font-family: 'Source Sans 3', sans-serif;
+  font-optical-sizing: auto;
+  font-style: normal;
+
+  @apply bg-background;
+}
+
+.dark body {
+  @apply bg-dark-background;
+}

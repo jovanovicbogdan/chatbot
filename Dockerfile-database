@@ -1,0 +1,73 @@
+# ARG BASE=474230206603.dkr.ecr.us-west-2.amazonaws.com/upwork/operations-engineering/upwork-base-ubuntu-minimal
+FROM ubuntu:22.04
+
+ENV PG_MAJOR 16
+ENV PATH $PATH:/usr/lib/postgresql/$PG_MAJOR/bin:/usr/local/bin
+
+RUN apt-get update
+RUN apt-get upgrade -y
+RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get -y install tzdata
+
+RUN apt install curl \
+    gpg \
+    lsb-release \
+    gnupg2 \
+    wget \
+    nano \
+    less \
+    ca-certificates \
+    libnss-wrapper \
+    gosu \
+    xz-utils \
+    zstd -y
+
+RUN sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+RUN curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor -o /etc/apt/trusted.gpg.d/postgresql.gpg
+
+## explicitly set user/group IDs
+RUN groupadd -r postgres --gid=999; \
+	useradd -r -g postgres --uid=999 --home-dir=/var/lib/postgresql --shell=/bin/bash postgres; \
+	mkdir -p /var/lib/postgresql; \
+	chown -R postgres:postgres /var/lib/postgresql
+
+
+## make the "en_US.UTF-8" locale so postgres will be utf-8 enabled by default
+RUN if [ -f /etc/dpkg/dpkg.cfg.d/docker ]; then \
+# if this file exists, we're likely in "debian:xxx-slim", and locales are thus being excluded so we need to remove that exclusion (since we need locales)
+		grep -q '/usr/share/locale' /etc/dpkg/dpkg.cfg.d/docker; \
+		sed -ri '/\/usr\/share\/locale/d' /etc/dpkg/dpkg.cfg.d/docker; \
+		! grep -q '/usr/share/locale' /etc/dpkg/dpkg.cfg.d/docker; \
+	fi; \
+	apt-get update; apt-get install -y --no-install-recommends locales; rm -rf /var/lib/apt/lists/*; \
+	echo 'en_US.UTF-8 UTF-8' >> /etc/locale.gen; \
+	locale-gen; \
+	locale -a | grep 'en_US.utf8'
+ENV LANG en_US.utf8
+
+RUN mkdir /docker-entrypoint-initdb.d
+
+RUN mkdir -p /var/run/postgresql && chown -R postgres:postgres /var/run/postgresql && chmod 3777 /var/run/postgresql
+#
+ENV PGDATA /var/lib/postgresql/data
+## this 1777 will be replaced by 0700 at runtime (allows semi-arbitrary "--user" values)
+RUN mkdir -p "$PGDATA" && chown -R postgres:postgres "$PGDATA" && chmod 1777 "$PGDATA"
+
+RUN  apt-get update &&  \
+     apt-get install -y --no-install-recommends postgresql-$PG_MAGOR postgresql-contrib-$PG_MAJOR postgresql-$PG_MAJOR-pgvector
+
+RUN mkdir -p /var/run/postgresql && chown -R postgres:postgres /var/run/postgresql && chmod 3777 /var/run/postgresql
+
+COPY scripts/docker-entrypoint.sh /usr/local/bin/
+COPY scripts/docker-ensure-initdb.sh /usr/local/bin/
+RUN ln -sT docker-ensure-initdb.sh /usr/local/bin/docker-enforce-initdb.sh
+RUN echo "listen_addresses = '*'" >> /usr/share/postgresql/16/postgresql.conf.sample
+
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh && \
+    chmod +x /usr/local/bin/docker-ensure-initdb.sh
+USER postgres
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+
+STOPSIGNAL SIGINT
+
+EXPOSE 5432
+CMD ["postgres"]

@@ -1,0 +1,40 @@
+# ARG BASE=474230206603.dkr.ecr.us-west-2.amazonaws.com/upwork/operations-engineering/upwork-base-ubuntu-minimal
+FROM ubuntu:22.04
+
+ARG DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && \
+    apt-get install -y ca-certificates curl build-essential nginx sudo
+
+RUN adduser --disabled-password --gecos 'node' node && adduser node sudo
+RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+
+# Import Upwork Root CA
+# RUN mkdir -p /usr/local/share/ca-certificates/extra
+# COPY upwork.crt /usr/local/share/ca-certificates/upwork.crt
+# RUN update-ca-certificates
+
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+RUN apt-get install -y nodejs
+
+RUN ln -sf /dev/stdout /var/log/nginx/access.log \
+    && ln -sf /dev/stderr /var/log/nginx/error.log
+
+RUN mkdir /app
+WORKDIR /app
+COPY ./code/frontend .
+RUN npm ci
+RUN npm run build
+
+WORKDIR /usr/share/nginx/html
+RUN rm -rdf ./*
+RUN cp -r /app/dist/* .
+RUN rm -rdf /app
+COPY ./config/nginx/default.conf /etc/nginx/sites-available/default
+COPY ./config/nginx/nginx.conf /etc/nginx/nginx.conf
+
+USER node
+
+EXPOSE 8888
+
+CMD ["/usr/sbin/nginx", "-g", "daemon off;"]

@@ -1,0 +1,32 @@
+# ARG BASE=474230206603.dkr.ecr.us-west-2.amazonaws.com/upwork/operations-engineering/upwork-base-ubuntu-minimal
+FROM ubuntu:22.04
+
+ARG DEBIAN_FRONTEND=noninteractive
+
+SHELL ["/bin/bash", "-c"]
+
+RUN apt-get update
+RUN apt-get update && apt-get -y install software-properties-common && \
+    apt-get install -y apache2 apache2-utils \
+    php libapache2-mod-php php-pgsql php-curl \
+    wget sudo ca-certificates --no-install-recommends
+
+RUN apt-get clean && apt-get autoclean
+
+ADD config/000-default.conf /etc/apache2/sites-enabled/000-default.conf
+ADD config/ports.conf /etc/apache2/ports.conf
+ADD scripts/run.sh /run.sh
+
+
+ADD code/adminer/adminer.php /var/www/index.php
+
+RUN ln -sfT /dev/stderr "/var/log/apache2/error.log";  \
+    ln -sfT /dev/stdout "/var/log/apache2/access.log"; \
+    ln -sfT /dev/stdout "/var/log/apache2/other_vhosts_access.log"; \
+    chown -R www-data /var/log/apache2 /var/run/apache2 /etc/apache2 /var/www; \
+    chown www-data /run.sh; \
+    chmod +x /run.sh
+
+USER www-data
+EXPOSE 8000
+ENTRYPOINT [ "sh", "/run.sh"]

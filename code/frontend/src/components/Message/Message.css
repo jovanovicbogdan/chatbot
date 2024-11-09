@@ -1,0 +1,66 @@
+.assistant-output p {
+  margin: 1.25em 0;
+}
+
+.assistant-output a {
+  text-decoration: underline;
+  color: var(--color-primary);
+}
+
+.assistant-output > p:first-child {
+  margin: 0 0 1.25em;
+}
+
+.assistant-output ol > li p:first-child {
+  margin: 0;
+}
+
+.assistant-output ul li p,
+.assistant-output ol li p {
+  margin: 0;
+}
+
+.assistant-output li {
+  margin-bottom: 0.45em;
+}
+
+.assistant-output h3 {
+  margin: 0.45em 0;
+}
+
+pre > code {
+  width: 590px;
+}
+
+code:not([class*='language-']),
+code[class*='language-'].hljs {
+  border-radius: 6px;
+  font-family: monospace;
+  font-size: 1em;
+}
+
+code:not([class*='language-']) {
+  background-color: var(--color-light-gray);
+  color: var(--color-dark-gray);
+  padding: 4px 8px;
+}
+
+/* code block (light) */
+/* code[class*='language-'].hljs {
+  background-color: var(--color-light-gray);
+  color: var(--color-dark-gray);
+  margin: 1.25em 0;
+} */
+
+.dark code:not([class*='language-']) {
+  background-color: var(--color-dark-gray);
+  color: var(--color-light-gray);
+  padding: 4px 8px;
+}
+
+/* code block (dark) */
+.dark code[class*='language-'].hljs {
+  background-color: var(--color-dark-gray);
+  color: var(--color-light-gray);
+  margin: 1.25em 0;
+}

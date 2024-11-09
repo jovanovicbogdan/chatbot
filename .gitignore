@@ -1,0 +1,12 @@
+.DS_Store
+.idea
+.vscode
+.mypy_cache
+__pycache__
+.env
+.venv
+.python-version
+pyrightconfig.json
+venv
+node_modules
+dist

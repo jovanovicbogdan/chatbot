@@ -1,0 +1,45 @@
+# ARG BASE=474230206603.dkr.ecr.us-west-2.amazonaws.com/upwork/operations-engineering/upwork-base-ubuntu-minimal
+FROM ubuntu:22.04
+
+RUN apt-get update && \
+    apt-get install python3 \
+    python3-pip \
+    libpq-dev \
+    postgresql-client  \
+    libmagic-dev \
+    libgl1 \
+    libglib2.0-0 \
+    libkrb5-dev  \
+    git -y
+
+RUN addgroup --gid 1000 qabot &&  \
+    adduser --disabled-password --gecos 'qabot' --uid 1000 --gid 1000 qabot
+
+# Import Upwork Root CA
+# RUN mkdir -p /usr/local/share/ca-certificates/extra
+# COPY upwork.crt /usr/local/share/ca-certificates/upwork.crt
+# RUN update-ca-certificates
+
+WORKDIR /app
+
+COPY ./code/backend/requirements.txt .
+COPY ./code/backend/*.py .
+COPY ./code/backend/data ./data
+COPY ./code/backend/migrations ./migrations
+
+RUN pip3 install --no-cache-dir -r requirements.txt
+
+RUN python3 -m nltk.downloader -d /app/data/nltk_data all
+
+RUN mkdir /data && \
+    chown qabot:qabot /data
+
+USER qabot
+RUN mkdir ~/.ssh && \
+        ssh-keyscan -p 7999 bitbucket.techops.usw2.upwork >> /home/qabot/.ssh/known_hosts
+
+
+
+EXPOSE 8080
+
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8080"]

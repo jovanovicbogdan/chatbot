@@ -1,0 +1,5 @@
+EMBEDDING_MODEL = "text-embedding-3-small"
+LLM = "gpt-4o"
+COLLECTION_NAME_QABOT = "qabot"
+COLLECTION_NAME_TSBOT = "tsbot"
+NAMESPACE = "pgvector/qabot"
