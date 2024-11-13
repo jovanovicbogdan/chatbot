@@ -58,7 +58,7 @@ function AvatarDropdown({ user }: AvatarDropdownProps) {
       {openAvatarDropdown && (
         <button
           onClick={() => setOpenAvatarDropdown(() => false)}
-          className="fixed z-[998] inset-0 h-full w-full bg-dark-background opacity-50 cursor-default"
+          className="fixed z-[998] inset-0 h-full w-full cursor-default"
           tabIndex={-1}
         ></button>
       )}

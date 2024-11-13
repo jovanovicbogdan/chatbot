@@ -69,9 +69,9 @@ export default function ChatMessageBox({
   }
 
   return (
-    <div className="relative z-[-1]">
+    <div className="relative">
       <div ref={dividerRef} className="min-h-32"></div>
-      <div className="fixed z-[-1] flex justify-center items-end gap-3 inset-x-0 bottom-0 min-h-32 bg-background dark:bg-dark-background">
+      <div className="fixed flex justify-center items-end gap-3 inset-x-0 bottom-0 min-h-32 bg-background dark:bg-dark-background">
         <div className="relative flex items-center w-[400px] md:w-[770px]">
           <textarea
             rows={1}
