@@ -8,11 +8,6 @@ RUN apt-get update && \
 RUN adduser --disabled-password --gecos 'node' node && adduser node sudo
 RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
-# Import Upwork Root CA
-# RUN mkdir -p /usr/local/share/ca-certificates/extra
-# COPY upwork.crt /usr/local/share/ca-certificates/upwork.crt
-# RUN update-ca-certificates
-
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
 RUN apt-get install -y nodejs
 

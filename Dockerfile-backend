@@ -14,11 +14,6 @@ RUN apt-get update && \
 RUN addgroup --gid 1000 qabot &&  \
     adduser --disabled-password --gecos 'qabot' --uid 1000 --gid 1000 qabot
 
-# Import Upwork Root CA
-# RUN mkdir -p /usr/local/share/ca-certificates/extra
-# COPY upwork.crt /usr/local/share/ca-certificates/upwork.crt
-# RUN update-ca-certificates
-
 WORKDIR /app
 
 COPY ./code/backend/requirements.txt .
@@ -34,10 +29,6 @@ RUN mkdir /data && \
     chown qabot:qabot /data
 
 USER qabot
-RUN mkdir ~/.ssh && \
-        ssh-keyscan -p 7999 bitbucket.techops.usw2.upwork >> /home/qabot/.ssh/known_hosts
-
-
 
 EXPOSE 8080
 

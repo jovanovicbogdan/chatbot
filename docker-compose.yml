@@ -7,6 +7,8 @@ services:
         BASE: ubuntu
     ports:
       - 8888:8888
+    environment:
+      VITE_APP_ENV: development
 
   qa-qabot-adminer:
     build:
